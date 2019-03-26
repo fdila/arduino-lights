@@ -11,6 +11,10 @@ Adafruit_NeoPixel leftstrip = Adafruit_NeoPixel(15, PIN1, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel rightstrip = Adafruit_NeoPixel(15, PIN2, NEO_GRB + NEO_KHZ800);
 
 volatile int brightness;
+volatile byte blinkMode = 0;
+volatile boolean testInterrupt = 0;
+volatile unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+volatile unsigned long debounceDelay = 200;    // the debounce time; increase if the output flickers
 
 void setBrightLed(){
   brightness = map(analogRead(A0),0,1024,0,255);
@@ -19,34 +23,6 @@ void setBrightLed(){
 }
 
 Ticker timerBright(setBrightLed, 150);
-
-void setup(){
-  Serial.begin(9600);
-  pinMode(PIN1, OUTPUT);
-  pinMode(PIN2, OUTPUT);
-  pinMode(4, INPUT_PULLUP); //Pushbutton 1
-  pinMode(5, INPUT_PULLUP); //Pushbutton 2
-  pinMode(0, OUTPUT);
-  attachInterrupt(digitalPinToInterrupt(4), incMode, FALLING);
-  attachInterrupt(digitalPinToInterrupt(5), decMode, FALLING);
-
-
-  timerBright.start();
-
-  leftstrip.begin();
-  leftstrip.show(); // Initialize all pixels to 'off'
-  rightstrip.begin();
-  rightstrip.show(); // Initialize all pixels to 'off'
-  delay(1); //delays needed to keep ESP2866 stable, not needed for other boards
-  rightstrip.setBrightness(10);
-  leftstrip.setBrightness(10);
-  digitalWrite(0, LOW);
-}
-volatile byte blinkMode = 0;
-volatile boolean testInterrupt = 0;
-volatile unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
-volatile unsigned long debounceDelay = 200;    // the debounce time; increase if the output flickers
-
 
 void incMode(){
   if(millis()-lastDebounceTime > debounceDelay){
@@ -71,7 +47,41 @@ void decMode(){
   }
 }
 
+void setup(){
+  Serial.begin(9600);
+  pinMode(PIN1, OUTPUT);
+  pinMode(PIN2, OUTPUT);
+  pinMode(4, INPUT_PULLUP); //Pushbutton 1
+  pinMode(5, INPUT_PULLUP); //Pushbutton 2
+  pinMode(0, OUTPUT);
+  attachInterrupt(digitalPinToInterrupt(4), incMode, FALLING);
+  attachInterrupt(digitalPinToInterrupt(5), decMode, FALLING);
 
+
+  timerBright.start();
+
+  leftstrip.begin();
+  leftstrip.show(); // Initialize all pixels to 'off'
+  rightstrip.begin();
+  rightstrip.show(); // Initialize all pixels to 'off'
+  delay(1); //delays needed to keep ESP2866 stable, not needed for other boards
+  rightstrip.setBrightness(10);
+  leftstrip.setBrightness(10);
+  digitalWrite(0, LOW);
+}
+
+uint32_t Wheel(byte WheelPos) {
+  WheelPos = 255 - WheelPos;
+  if (WheelPos < 85) {
+    return leftstrip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  }
+  if (WheelPos < 170) {
+    WheelPos -= 85;
+    return leftstrip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+  }
+  WheelPos -= 170;
+  return leftstrip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+}
 
 void loop(){
   delay(1);
