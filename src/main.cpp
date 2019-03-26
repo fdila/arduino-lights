@@ -114,7 +114,7 @@ void loop(){
         }
         leftstrip.show();
         rightstrip.show();
-        delay(40);
+        delay(30);
       }
     }
   }
@@ -129,7 +129,7 @@ void loop(){
         leftstrip.show();
         rightstrip.show();
 
-        delay(80);
+        delay(150);
 
         for (uint16_t i = 0;( i < leftstrip.numPixels() && !testInterrupt); i = i + 3) {
           leftstrip.setPixelColor(i + q, 0);
@@ -167,9 +167,9 @@ void loop(){
     for (uint16_t i = 0; i < leftstrip.numPixels(); i++) {
       if(!testInterrupt){
         timerBright.update();
-        leftstrip.setPixelColor(i, 249, 255, 104);
+        leftstrip.setPixelColor(i, 255, 255, 255);
         leftstrip.show();
-        rightstrip.setPixelColor(i, 249, 255, 104);
+        rightstrip.setPixelColor(i, 255, 255, 255);
         rightstrip.show();
       }
     }
