@@ -129,16 +129,26 @@ void loop(){
     }
 
   }
-  // Fixed lights white
+  // Red Lights
   else if (blinkMode==3 && !testInterrupt){
     for (uint16_t i = 0; i < leftstrip.numPixels(); i++) {
       if(!testInterrupt){
         timerBright.update();
-        leftstrip.setPixelColor(i, 255, 0, 0);
+        leftstrip.setPixelColor(i, 140, 0, 0);
         leftstrip.show();
-        rightstrip.setPixelColor(i, 255, 0, 0);
+        rightstrip.setPixelColor(i, 140, 0, 0);
         rightstrip.show();
-        delay(40);
+        delay(120);
+      }
+    }
+    for (uint16_t i = 0; i < leftstrip.numPixels(); i++) {
+      if(!testInterrupt){
+        timerBright.update();
+        leftstrip.setPixelColor(i, 55, 0, 0);
+        leftstrip.show();
+        rightstrip.setPixelColor(i, 55, 0, 0);
+        rightstrip.show();
+        delay(120);
       }
     }
   }
