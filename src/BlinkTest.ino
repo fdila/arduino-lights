@@ -10,8 +10,9 @@
 Adafruit_NeoPixel leftstrip = Adafruit_NeoPixel(15, PIN1, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel rightstrip = Adafruit_NeoPixel(15, PIN2, NEO_GRB + NEO_KHZ800);
 
+volatile int brightness;
+
 void setBrightLed(){
-  int brightness;
   brightness = map(analogRead(A0),0,1024,0,255);
   rightstrip.setBrightness(brightness);
   leftstrip.setBrightness(brightness);
@@ -107,13 +108,50 @@ void loop(){
       }
     }
   }
+  // Rainbow Wheel 2
   else if (blinkMode==2 && !testInterrupt){
+    for (int j = 0; (j < 256 && !testInterrupt); j++) {   // cycle all 256 colors in the wheel
+      for (int q = 0; (q < 3 && !testInterrupt); q++) {
+        for (uint16_t i = 0; (i < leftstrip.numPixels() && !testInterrupt); i = i + 3) {
+          leftstrip.setPixelColor(i + q, Wheel( (i + j) % 255)); //turn every third pixel on
+          rightstrip.setPixelColor(i + q, Wheel( (i + j) % 255)); //turn every third pixel on
+        }
+        leftstrip.show();
+        rightstrip.show();
+
+        delay(80);
+
+        for (uint16_t i = 0;( i < leftstrip.numPixels() && !testInterrupt); i = i + 3) {
+          leftstrip.setPixelColor(i + q, 0);
+          rightstrip.setPixelColor(i + q, 0);     //turn every third pixel off
+        }
+      }
+    }
 
   }
+  // Fixed lights white
   else if (blinkMode==3 && !testInterrupt){
-
+    for (uint16_t i = 0; i < leftstrip.numPixels(); i++) {
+      if(!testInterrupt){
+        timerBright.update();
+        leftstrip.setPixelColor(i, 255, 0, 0);
+        leftstrip.show();
+        rightstrip.setPixelColor(i, 255, 0, 0);
+        rightstrip.show();
+        delay(40);
+      }
+    }
   }
+  // Fixed lights white
   else if (blinkMode==4 && !testInterrupt){
-
+    for (uint16_t i = 0; i < leftstrip.numPixels(); i++) {
+      if(!testInterrupt){
+        timerBright.update();
+        leftstrip.setPixelColor(i, 249, 255, 104);
+        leftstrip.show();
+        rightstrip.setPixelColor(i, 249, 255, 104);
+        rightstrip.show();
+      }
+    }
   }
 }
