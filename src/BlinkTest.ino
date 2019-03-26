@@ -13,12 +13,11 @@ Adafruit_NeoPixel rightstrip = Adafruit_NeoPixel(15, PIN2, NEO_GRB + NEO_KHZ800)
 void setBrightLed(){
   int brightness;
   brightness = map(analogRead(A0),0,1024,0,255);
-  Serial.println(brightness);
   rightstrip.setBrightness(brightness);
   leftstrip.setBrightness(brightness);
 }
 
-Ticker timerBright(setBrightLed, 200);
+Ticker timerBright(setBrightLed, 150);
 
 void setup(){
   Serial.begin(9600);
@@ -51,6 +50,9 @@ volatile unsigned long debounceDelay = 200;    // the debounce time; increase if
 void incMode(){
   if(millis()-lastDebounceTime > debounceDelay){
     blinkMode++;
+    blinkMode = blinkMode % 5;
+    if (blinkMode < 0)
+    blinkMode = blinkMode + 5;
     testInterrupt = 1;
     lastDebounceTime = millis();
     Serial.println(blinkMode);
@@ -60,6 +62,8 @@ void incMode(){
 void decMode(){
   if(millis()-lastDebounceTime > debounceDelay){
     blinkMode--;
+    if (blinkMode == 255)
+    blinkMode = 4;
     testInterrupt = 1;
     lastDebounceTime = millis();
     Serial.println(blinkMode);
@@ -71,8 +75,8 @@ void decMode(){
 void loop(){
   delay(1);
   testInterrupt=0;
-  //Serial.println(analogRead(A0));
 
+  // light chase
   if(blinkMode==0 && !testInterrupt){
     for (uint16_t i = 0; i < leftstrip.numPixels(); i++) {
       if(!testInterrupt){
@@ -87,22 +91,29 @@ void loop(){
       }
     }
   }
-  else{
-    // Rainbow Wheel
-    if(blinkMode>1 && !testInterrupt){
-      uint16_t i, j;
-      for (j = 0; j < 255 * 5; j++) { // 5 cycles of all colors on wheel
-        if(!testInterrupt){
-          for (i = 0; i < leftstrip.numPixels(); i++) {
-            timerBright.update();
-            leftstrip.setPixelColor(i, Wheel(((i * 256 / leftstrip.numPixels()) + j) & 255));
-            rightstrip.setPixelColor(i, Wheel(((i * 256 / rightstrip.numPixels()) + j) & 255));
-          }
-          leftstrip.show();
-          rightstrip.show();
-          delay(40);
+  // Rainbow Wheel
+  else if(blinkMode==1 && !testInterrupt){
+    uint16_t i, j;
+    for (j = 0; j < 255 * 5; j++) { // 5 cycles of all colors on wheel
+      if(!testInterrupt){
+        for (i = 0; i < leftstrip.numPixels(); i++) {
+          timerBright.update();
+          leftstrip.setPixelColor(i, Wheel(((i * 256 / leftstrip.numPixels()) + j) & 255));
+          rightstrip.setPixelColor(i, Wheel(((i * 256 / rightstrip.numPixels()) + j) & 255));
         }
+        leftstrip.show();
+        rightstrip.show();
+        delay(40);
       }
     }
+  }
+  else if (blinkMode==2 && !testInterrupt){
+
+  }
+  else if (blinkMode==3 && !testInterrupt){
+
+  }
+  else if (blinkMode==4 && !testInterrupt){
+
   }
 }
