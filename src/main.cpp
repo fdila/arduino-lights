@@ -24,7 +24,7 @@ void setBrightLed(){
 
 Ticker timerBright(setBrightLed, 150);
 
-void incMode(){
+void IRAM_ATTR incMode(){
   if(millis()-lastDebounceTime > debounceDelay){
     blinkMode++;
     blinkMode = blinkMode % 5;
@@ -32,18 +32,16 @@ void incMode(){
     blinkMode = blinkMode + 5;
     testInterrupt = 1;
     lastDebounceTime = millis();
-    Serial.println(blinkMode);
   }
 }
 
-void decMode(){
+void IRAM_ATTR decMode(){
   if(millis()-lastDebounceTime > debounceDelay){
     blinkMode--;
     if (blinkMode == 255)
     blinkMode = 4;
     testInterrupt = 1;
     lastDebounceTime = millis();
-    Serial.println(blinkMode);
   }
 }
 
@@ -51,9 +49,8 @@ void setup(){
   Serial.begin(9600);
   pinMode(PIN1, OUTPUT);
   pinMode(PIN2, OUTPUT);
-  pinMode(4, INPUT_PULLUP); //Pushbutton 1
-  pinMode(5, INPUT_PULLUP); //Pushbutton 2
-  pinMode(0, OUTPUT);
+  pinMode(4, INPUT); //Pushbutton 1
+  pinMode(5, INPUT); //Pushbutton 2
   attachInterrupt(digitalPinToInterrupt(4), incMode, FALLING);
   attachInterrupt(digitalPinToInterrupt(5), decMode, FALLING);
 
@@ -65,9 +62,10 @@ void setup(){
   rightstrip.begin();
   rightstrip.show(); // Initialize all pixels to 'off'
   delay(1); //delays needed to keep ESP2866 stable, not needed for other boards
-  rightstrip.setBrightness(10);
-  leftstrip.setBrightness(10);
-  digitalWrite(0, LOW);
+  rightstrip.setBrightness(255);
+  leftstrip.setBrightness(255);
+  blinkMode = 4;
+  
 }
 
 uint32_t Wheel(byte WheelPos) {
@@ -86,6 +84,15 @@ uint32_t Wheel(byte WheelPos) {
 void loop(){
   delay(1);
   testInterrupt=0;
+
+  int val = digitalRead(4); 
+
+  if (val == HIGH)
+    Serial.print("alto \n");
+  else if (val == LOW)
+    Serial.print("basso \n");
+  else 
+    Serial.print("WTF \n");
 
   // light chase
   if(blinkMode==0 && !testInterrupt){
@@ -167,9 +174,9 @@ void loop(){
     for (uint16_t i = 0; i < leftstrip.numPixels(); i++) {
       if(!testInterrupt){
         timerBright.update();
-        leftstrip.setPixelColor(i, 255, 255, 255);
+        leftstrip.setPixelColor(i, 255, 222, 152);
         leftstrip.show();
-        rightstrip.setPixelColor(i, 255, 255, 255);
+        rightstrip.setPixelColor(i, 255, 222, 152);
         rightstrip.show();
       }
     }
